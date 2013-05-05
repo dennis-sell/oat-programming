@@ -1,0 +1,250 @@
+/* An implementation of Strings with various analytical functions. */
+
+#include "list.oat"
+#include "math.oat"
+
+#ifndef __STRING_OAT__
+#define __STRING_OAT__
+
+class ListItem <: Object {
+  string s;
+  ListItem? prev;
+  ListItem? next;
+
+  new (string s)() {
+    this.s = s;
+    this.prev = null;
+    this.next = null;
+  }
+};
+
+class List <: Object {
+  int contentsLength;
+  ListItem? head;
+  ListItem? tail;
+
+  new ()() {
+    this.contentsLength = 0;
+    this.head = null;
+    this.tail = null;
+  }
+
+  void clear() {
+    this.contentsLength = 0;
+    this.head = null;
+    this.tail = null;
+  }
+
+  void addString(string s) {
+    ListItem elem = new ListItem(s);
+    this.contentsLength = this.contentsLength + length(s);
+    if (head == null) {
+      this.head = elem;
+      this.tail = elem;
+    } else {
+      this.tail.next = elem;
+      elem.prev = this.tail;
+      this.tail = elem;
+    }
+  }
+
+  string getContents() {
+    ListElem current = this.head;
+    string contents;
+    /*int[] contents = int[this.contentsLength];
+    int counter = 0; */
+    if (this.contentsLength == 0) return "";
+    while (current != null) {
+      contents = concat(contents, current.s);
+    }
+    return contents;   
+  }
+
+}
+
+
+int min (int a, int b) {
+  if (a > b) return a;
+  return b;
+}
+
+int length(string s) {
+    return length_of_string(s));
+}
+
+string concat(string s1, string s2) {
+  int len1 = length(s1);
+  int len2 = length(s2);
+  int[] string1 = array_of_string(s1);
+  int[] string2 = array_of_string(s2);
+  int[] newString = int[len1 + len2];
+  for (int i = 0; i < len1; i++) {
+    newString[i] = string1[i];
+  }
+  for (int i = 0; i < len2; i++) {
+    newString[i + len1] = string2[i];
+  }
+  return string_of_array(newString);
+}
+
+string charAt(int i, string str) {
+  int[] charArray = string_to_array(str);
+  int[] c = int[]{charArray[n]};
+  return array_to_string(c);
+}
+
+bool equals(string s1, string s2) {
+  int[] arr1 = string_to_array(s1);
+  int[] arr2 = string_to_array(s2);
+  int len1 = length(arr1);
+  if (len1 != length(arr2)) return false;
+  for (int i = 0; i < len1; i++) {
+    if (arr1[i] != arr2[i]) return false;
+  }
+  return true;
+}
+
+/* Returns the index of the first occurence of the entire substring within the main string passed in.
+   If the substring is not found it returns -1. This function works for any length string, including
+   those with length 1 which essentially represent chars. */
+int indexOf(string substring, string mainstring) {
+  int[] sub = string_to_array(substring);
+  int[] main = string_to_arrau(substring);
+  int len = length(main);
+  int length_of_sub = length(sub);
+  for (int i = 0; i < len; i++) {
+    if (main[i] == sub[0]) {
+      for (int j = 1; j < length_of_sub; j++) {
+        if (main[i + j] != sub[j]) break;
+        if (main[i + j] == sub[j] && j == length_of_sub - 1) return i;
+      }
+    }
+  }
+  return -1;
+}
+
+int indexOf(string substring, string main, int start) {
+  int[] shortenedMain = substring(main, start);
+  return indexOf(substring, shortenedMain);
+}  
+
+string substring(string s, int start) {
+  int[] str = array_of_string(s);
+  int newLen = length(str) - start;
+  if (newLen <= 0 || start < 0) return "";
+  int[] newString = int[newLen];
+  int oldLen = length(str);
+  for (int i = 0; i < newLen; i++) {
+    newString[i] = str[i + oldLen]; 
+  }
+  return string_of_array(newString);
+}
+
+
+/* Returns the substring begining at the start index and including all chars up to the end index (inclusive) */
+string substring(string s, int start, int end) {
+  int len = length(s);
+  int[] str = array_of_string(s);
+  int[] newString = str; 
+  if (start < 0 || end < 0 || start >= len 
+                || end >= len || start >= end) return "";
+  newString = int[end - start];
+  for (int i = 0; i < end - start; i++) {
+    newString[i] = str[start + i];
+  }
+  return string_of_array(newString);
+}
+  
+
+string toLowerCase(string s) {
+  int[] str = array_of_string(s);
+  int len = length(s);
+  for (int i = 0; i < len; i++) {
+    if (str[i] >= 65 && str[i] <= 90) str[i] = str[i] + 32;
+  }
+  return string_of_array(str); 
+}
+
+string toUpperCase(string s) {
+  int[] str = array_of_string(s);
+  int len = length(s);
+  for (int i = 0; i < len; i++) {
+    if (str[i] >= 97 && str[i] <= 112) str[i] = str[i] - 32;
+  }
+  return string_of_array(str);
+}
+
+
+/* Uses dynamic programming to determine the minimum number of insertions, deletions, 
+   and substitutions needed to get from one string to the other. */
+int levenshteinDistance(string s1, string s2) {
+  int len1 = length(s1);
+  int len2 = length(s2);
+  int[][] P = int[len1][len2];
+  int[] s = array_to_string(s1);
+  int[] t = array_to_string(s2);
+  
+  for (int i = 0; i < len1; i++) {
+    P[i][0] = 0;
+  }
+
+  for (int i = 0; i < len2; i++) {
+    P[0][i] = 0;
+  } 
+  
+  for (int i = 1; i < len2; i++) {
+    for (int j = 1; j < len1; j++) {      
+	if (s[i] == t[j]) {
+          P[i][j] = P[i-1][j-1];
+        } else {
+          P[i][j] = min( P[i][j-1], min(P[i-1][j], P[i-1][j-1])) + 1;
+        }
+    }
+  }
+  return P[len1 - 1][len2 -1];
+}
+		
+
+bool contains(string sub, string s) {
+  return indexOf(sub, s) != -1;
+}
+
+bool isAlpha(string s) {
+  int[] str = array_of_String(s);
+  int len = length(s);
+  for (int i = 0; i < len; i++) {
+    if ( !((str[i] >= 65 && str[i] <= 90) || (str[i] >= 97 && str[i] <= 112)) ) return false;
+  }
+  return true;
+}
+  
+bool isAlphaNum(string s) {
+  int[] str = array_of_String(s);
+  int len = length(s);
+  for (int i = 0; i < len; i++) {
+    if ( !((str[i] >= 65 && str[i] <= 90) || 
+           (str[i] >= 97 && str[i] <= 112) ||
+           (str[i] >= 48 && str[i] <= 57)) ) return false;
+  }
+  return true;
+}
+
+bool startsWith(string sub, string main) {
+  return indexOf(sub, main) == 0;
+}
+
+bool endsWith(string sub, string main) {
+  return startsWith(substring(main, length(main) - length(sub), length(main)));
+}
+
+/* equals, concatenate, indexOf (String) (String, int), length, toLowerCase, toUpperCase, words, unwords, lines, unlines, split, merge, replace, ocurrences, Levenshtein, fromInt, toInt. getInteger, getToken(), String Buffer, contains, trim, removeWhitespace, valueOf, startsWith, endsWith, isAlpha, isAlphaNum, substring
+
+Still to do:
+words, unwords, lines, unlines, split, merge, replace, ocurrences, fromInt, toInt. getInteger, getToken(), trim, removeWhitespace remove, valueOf
+
+Maybe Regexes
+
+*/
+
+
+#endif
