@@ -1,18 +1,17 @@
 /* An implementation of Strings with various analytical functions. */
 
-#include "list.oat"
-#include "math.oat"
 
 #ifndef __STRING_OAT__
 #define __STRING_OAT__
 
-class ListItem <: Object {
+/*class ListItem <: Object {
   string s;
   ListItem? prev;
   ListItem? next;
 
-  new (string s)() {
+  new (string s)()
     this.s = s;
+  {
     this.prev = null;
     this.next = null;
   }
@@ -24,21 +23,22 @@ class List <: Object {
   ListItem? tail;
 
   new ()() {
+    this.head = null;
+    this.tail = null;
+    this.contentsLength = 0;
+  }
+
+  unit clear() {
     this.contentsLength = 0;
     this.head = null;
     this.tail = null;
+    return;
   }
 
-  void clear() {
-    this.contentsLength = 0;
-    this.head = null;
-    this.tail = null;
-  }
-
-  void addString(string s) {
+  unit addString(string s) {
     ListItem elem = new ListItem(s);
     this.contentsLength = this.contentsLength + length(s);
-    if (head == null) {
+    if (this.head == null) {
       this.head = elem;
       this.tail = elem;
     } else {
@@ -46,31 +46,39 @@ class List <: Object {
       elem.prev = this.tail;
       this.tail = elem;
     }
+    return;
   }
 
-/* Should probably redo this to not run in O(n^2) */
+/* Should probably redo this to not run in O(n^2) * /
   string getContents() {
     ListElem current = this.head;
-    string contents;
+    string contents = "";
     /*int[] contents = int[this.contentsLength];
     int counter = 0; */
-    if (this.contentsLength == 0) return "";
+    /*if (this.contentsLength == 0) {
+      return contents;
+    }* /
     while (current != null) {
       contents = concat(contents, current.s);
     }
     return contents;   
   }
 
-}
+};
+*/
 
-
-int min (int a, int b) {
-  if (a > b) return a;
-  return b;
+int min(int a, int b) {
+  int max = 0;
+  if (a > b) {
+    max = a;
+  } else { 
+    max = b;
+  }
+  return max;
 }
 
 int length(string s) {
-    return length_of_string(s));
+  return length_of_string(s);
 }
 
 string concat(string s1, string s2) {
@@ -78,90 +86,98 @@ string concat(string s1, string s2) {
   int len2 = length(s2);
   int[] string1 = array_of_string(s1);
   int[] string2 = array_of_string(s2);
-  int[] newString = int[len1 + len2];
-  for (int i = 0; i < len1; i++) {
+  int[] newString = new int [len1 + len2] (fun i -> 0);
+  for (int i = 0; i < len1; i=i+1;) {
     newString[i] = string1[i];
   }
-  for (int i = 0; i < len2; i++) {
+  for (int i = 0; i < len2; i=i+1;) {
     newString[i + len1] = string2[i];
   }
   return string_of_array(newString);
 }
 
 string charAt(int i, string str) {
-  int[] charArray = string_to_array(str);
-  int[] c = int[]{charArray[n]};
-  return array_to_string(c);
+  int[] charArray = array_of_string(str);
+  int[] c = {charArray[i]};
+  return string_of_array(c);
 }
 
 bool equals(string s1, string s2) {
-  int[] arr1 = string_to_array(s1);
-  int[] arr2 = string_to_array(s2);
-  int len1 = length(arr1);
-  if (len1 != length(arr2)) return false;
-  for (int i = 0; i < len1; i++) {
-    if (arr1[i] != arr2[i]) return false;
+  int[] arr1 = array_of_string(s1);
+  int[] arr2 = array_of_string(s2);
+  int len1 = length(s1);
+  bool equivalent = true;
+  if (len1 != length(s2)) {
+    equivalent = false;
   }
-  return true;
+  for (int i = 0; i < len1; i=i+1;) {
+    if (arr1[i] != arr2[i]) equivalent = false;
+  }
+  return equivalent;
 }
 
 /* Returns the index of the first occurence of the entire substring within the main string passed in.
    If the substring is not found it returns -1. This function works for any length string, including
    those with length 1 which essentially represent chars. */
 int indexOf(string substring, string mainstring) {
-  int[] sub = string_to_array(substring);
-  int[] main = string_to_arrau(substring);
-  int len = length(main);
-  int length_of_sub = length(sub);
-  for (int i = 0; i < len; i++) {
+  int[] sub = array_of_string(substring);
+  int[] main = array_of_string(substring);
+  int len = length(mainstring);
+  int length_of_sub = length(substring);
+  int location = -1;
+  for (int i = 0; (i < len) & (location < 0); i=i+1;) {
     if (main[i] == sub[0]) {
-      for (int j = 1; j < length_of_sub; j++) {
-        if (main[i + j] != sub[j]) break;
-        if (main[i + j] == sub[j] && j == length_of_sub - 1) return i;
+      if (equals(substring2(mainstring, i, i + length_of_sub), substring)) {
+	location = i;
       }
     }
   }
-  return -1;
+  return location;
 }
 
-int indexOf(string substring, string main, int start) {
-  int[] shortenedMain = substring(main, start);
+int indexOf2(string substring, string main, int start) {
+  string shortenedMain = substring(main, start);
   return indexOf(substring, shortenedMain);
 }  
 
 string substring(string s, int start) {
   int[] str = array_of_string(s);
-  int newLen = length(str) - start;
-  if (newLen <= 0 || start < 0) return "";
-  int[] newString = int[newLen];
-  int oldLen = length(str);
-  for (int i = 0; i < newLen; i++) {
-    newString[i] = str[i + oldLen]; 
+  int newLen = length(s) - start;
+  string result = "";
+  if ((newLen > 0) & (start >= 0)) {
+    int[] newString = new int[newLen] (fun i -> 0);
+    int oldLen = length(s);
+    for (int i = 0; i < newLen; i=i+1;) {
+      newString[i] = str[i + oldLen]; 
+    }
+    result = string_of_array(newString);
   }
-  return string_of_array(newString);
+  return result;
 }
 
 
 /* Returns the substring begining at the start index and including all chars up to the end index (inclusive) */
-string substring(string s, int start, int end) {
+string substring2(string s, int start, int end) {
   int len = length(s);
   int[] str = array_of_string(s);
-  int[] newString = str; 
-  if (start < 0 || end < 0 || start >= len 
-                || end >= len || start >= end) return "";
-  newString = int[end - start];
-  for (int i = 0; i < end - start; i++) {
-    newString[i] = str[start + i];
+  string result = "";
+  if ((start >= 0) & (end >= 0) & (start < len) 
+                   & (end < len) & (start < end)) {
+    int [] newString = new int [end - start] (fun i -> 0);
+    for (int i = 0; i < end - start; i=i+1;) {
+      newString[i] = str[start + i];
+    }
+    result = string_of_array(newString);
   }
-  return string_of_array(newString);
+  return result;
 }
   
 
 string toLowerCase(string s) {
   int[] str = array_of_string(s);
   int len = length(s);
-  for (int i = 0; i < len; i++) {
-    if (str[i] >= 65 && str[i] <= 90) str[i] = str[i] + 32;
+  for (int i = 0; i < len; i=i+1;) {
+    if ((str[i] >= 65) & (str[i] <= 90)) str[i] = str[i] + 32;
   }
   return string_of_array(str); 
 }
@@ -169,8 +185,8 @@ string toLowerCase(string s) {
 string toUpperCase(string s) {
   int[] str = array_of_string(s);
   int len = length(s);
-  for (int i = 0; i < len; i++) {
-    if (str[i] >= 97 && str[i] <= 112) str[i] = str[i] - 32;
+  for (int i = 0; i < len; i=i+1;) {
+    if ((str[i] >= 97) & (str[i] <= 112)) str[i] = str[i] - 32;
   }
   return string_of_array(str);
 }
@@ -180,9 +196,17 @@ string trim(string s) {
   int[] str = array_of_string(s);
   int start = 0;
   int end = length(s);
-  //for (;str[start] = 32 || 9 || 
-  
-  return substring(s, start, end);
+  int curr = str[start];
+  while (curr == 32 | curr == 9 | curr == 10) {
+    start = start + 1;
+    curr = str[start];
+  }
+  curr = str[end -1];
+  while (curr == 32 | curr == 9 | curr == 10) {
+    end = end - 1;
+    curr = str[end - 1];
+  }
+  return substring2(s, start, end);
 }
 
 /* Uses dynamic programming to determine the minimum number of insertions, deletions, 
@@ -190,28 +214,29 @@ string trim(string s) {
 int levenshteinDistance(string s1, string s2) {
   int len1 = length(s1);
   int len2 = length(s2);
-  int[][] P = int[len1][len2];
-  int[] s = array_to_string(s1);
-  int[] t = array_to_string(s2);
+  int[][] p = new int[][len2] (fun i -> new int[len1](fun j -> 0));
+
+  int[] s = array_of_string(s1);
+  int[] t = array_of_string(s2);
   
-  for (int i = 0; i < len1; i++) {
-    P[i][0] = 0;
+  for (int i = 0; i < len1; i=i+1;) {
+    p[i][0] = 0;
   }
 
-  for (int i = 0; i < len2; i++) {
-    P[0][i] = 0;
+  for (int i = 0; i < len2; i=i+1;) {
+    p[0][i] = 0;
   } 
   
-  for (int i = 1; i < len2; i++) {
-    for (int j = 1; j < len1; j++) {      
+  for (int i = 1; i < len2; i=i+1;) {
+    for (int j = 1; j < len1; j=j+1;) {      
 	if (s[i] == t[j]) {
-          P[i][j] = P[i-1][j-1];
+          p[i][j] = p[i-1][j-1];
         } else {
-          P[i][j] = min( P[i][j-1], min(P[i-1][j], P[i-1][j-1])) + 1;
+          p[i][j] = min( p[i][j-1], min(p[i-1][j], p[i-1][j-1])) + 1;
         }
     }
   }
-  return P[len1 - 1][len2 -1];
+  return p[len1 - 1][len2 -1];
 }
 		
 
@@ -222,21 +247,24 @@ bool contains(string sub, string s) {
 bool isAlpha(string s) {
   int[] str = array_of_string(s);
   int len = length(s);
-  for (int i = 0; i < len; i++) {
-    if ( !((str[i] >= 65 && str[i] <= 90) || (str[i] >= 97 && str[i] <= 112)) ) return false;
+  bool isAlpha = true;
+  for (int i = 0; (i < len) & isAlpha; i=i+1;) {
+    if ( !((str[i] >= 65 & str[i] <= 90) | (str[i] >= 97 & str[i] <= 112)) )   
+      isAlpha = false;
   }
-  return true;
+  return isAlpha;
 }
   
 bool isAlphaNum(string s) {
   int[] str = array_of_string(s);
   int len = length(s);
-  for (int i = 0; i < len; i++) {
-    if ( !((str[i] >= 65 && str[i] <= 90) || 
-           (str[i] >= 97 && str[i] <= 112) ||
-           (str[i] >= 48 && str[i] <= 57)) ) return false;
+  bool isAlphaNum = true;
+  for (int i = 0; (i < len) & isAlphaNum; i=i+1;) {
+    if ( !((str[i] >= 65 & str[i] <= 90) | 
+           (str[i] >= 97 & str[i] <= 112) |
+           (str[i] >= 48 & str[i] <= 57)) ) isAlphaNum = false;
   }
-  return true;
+  return isAlphaNum;
 }
 
 bool startsWith(string sub, string main) {
@@ -244,7 +272,14 @@ bool startsWith(string sub, string main) {
 }
 
 bool endsWith(string sub, string main) {
-  return startsWith(substring(main, length(main) - length(sub), length(main)));
+  return startsWith(substring(main, length(main) - length(sub)), sub);
+}
+
+int program (int argc, string[] argv) {
+  string s1 = "cat";
+  string s2 = "dog";
+  print_string(concat(s1, s2));
+  return 0;
 }
 
 /* equals, concatenate, indexOf (String) (String, int), length, toLowerCase, toUpperCase, words, unwords, lines, unlines, split, merge, replace, ocurrences, Levenshtein, fromInt, toInt. getInteger, getToken(), String Buffer, contains, trim, removeWhitespace, valueOf, startsWith, endsWith, isAlpha, isAlphaNum, substring

@@ -333,13 +333,7 @@ class State <: Object {
 unit instructions() {
   int k = 0;
   con_move(0,0);
-  con_print("
-    Extraterrestrial Encroachers. \n
-      j - Move left \n
-      l - Move right \n
-      f - Fire \n
-      Esc - quit \n\n
-      [Press any key to begin]\n");
+  con_print("Extraterrestrial Encroachers. \n j - Move left \n l - Move right \n f - Fire \n Esc - quit \n\n [Press any key to begin]\n");
   k = con_getch();
   return;
 }
