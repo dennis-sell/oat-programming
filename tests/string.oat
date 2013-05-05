@@ -48,6 +48,7 @@ class List <: Object {
     }
   }
 
+/* Should probably redo this to not run in O(n^2) */
   string getContents() {
     ListElem current = this.head;
     string contents;
@@ -174,6 +175,15 @@ string toUpperCase(string s) {
   return string_of_array(str);
 }
 
+/* Removes whitespace at the beginning and the end of a string. */
+string trim(string s) {
+  int[] str = array_of_string(s);
+  int start = 0;
+  int end = length(s);
+  //for (;str[start] = 32 || 9 || 
+  
+  return substring(s, start, end);
+}
 
 /* Uses dynamic programming to determine the minimum number of insertions, deletions, 
    and substitutions needed to get from one string to the other. */
@@ -210,7 +220,7 @@ bool contains(string sub, string s) {
 }
 
 bool isAlpha(string s) {
-  int[] str = array_of_String(s);
+  int[] str = array_of_string(s);
   int len = length(s);
   for (int i = 0; i < len; i++) {
     if ( !((str[i] >= 65 && str[i] <= 90) || (str[i] >= 97 && str[i] <= 112)) ) return false;
@@ -219,7 +229,7 @@ bool isAlpha(string s) {
 }
   
 bool isAlphaNum(string s) {
-  int[] str = array_of_String(s);
+  int[] str = array_of_string(s);
   int len = length(s);
   for (int i = 0; i < len; i++) {
     if ( !((str[i] >= 65 && str[i] <= 90) || 
