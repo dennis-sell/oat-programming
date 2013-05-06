@@ -1,7 +1,7 @@
-Add instructions that the TA can follow to grade your project. 
+My team chose to create a string library so that oat would provide more functionality with strings, particularly because basic functions such as charAt (exactly like the function in Java) was not implemented. We started with the basic functions such as equals, charAt, and substring. Then we also created functions such toLowerCase/UpperCase, and trim (which gets rid of whitespace on both ends of the string).
 
-Your instructions should describe the steps needed to reproduce the
-performance measurements you use to demonstrate the impacts of your
-optimizations. 
+Our two most noticable implementations were the following:
 
+Levenshtein String Distance - This function use dynamic programming to determine the minimum amount of insertions, deletions, and substitutions that is needed to change one string into another. The Levenshtein Distance function is an interesting string metric which is useful in determining how different strings are from each other. Another less insightful metric is the hamming distance. However, that simply pairs up the characters in order from both strings and counts the number of differences. The use of Levenshtein's distance function can be demonstrated in the following example. The Levenshtein distance of "abcdefg" and "bcdefgh" is 2 while the hamming distance is 7. Hence it is useful for determining the similarity of strings in a more hollistic way, more similarly to how humans would do so.
 
+String Buffer - Our implementation is similar to that of a stack. A String Buffer can be reset, a string can be added to it, and its contents can be removed as a single string.

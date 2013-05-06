@@ -1,86 +1,108 @@
 /* An implementation of Strings with various analytical functions. */
 
+#include "stack.oat"
 
 #ifndef __STRING_OAT__
 #define __STRING_OAT__
 
-/*class ListItem <: Object {
-  string s;
-  ListItem? prev;
-  ListItem? next;
 
-  new (string s)()
-    this.s = s;
+class SNode <: Object {
+  string item;
+  SNode? next;
+
+  new(string val)() 
+    this.item = val;
   {
-    this.prev = null;
     this.next = null;
   }
-};
 
-class List <: Object {
-  int contentsLength;
-  ListItem? head;
-  ListItem? tail;
-
-  new ()() {
-    this.head = null;
-    this.tail = null;
-    this.contentsLength = 0;
-  }
-
-  unit clear() {
-    this.contentsLength = 0;
-    this.head = null;
-    this.tail = null;
+  unit setnext(SNode? t) {
+    this.next = t;
     return;
   }
+
+  string getitem() {
+    return this.item;
+  }
+};
+
+class SStack <: Object {
+  SNode? top;
+  int numContents;
+
+  new()(){
+    this.top = null;
+    this.numContents = 0;
+  }
+
+  unit push(string n) {
+    SNode ntop = new SNode(n);
+    ntop.setnext(this.top);
+    this.top = ntop;
+    this.numContents = this.numContents + 1;
+    return;
+  }
+
+  bool isEmpty() {
+    return this.numContents == 0;
+  }
+
+  string pop() {
+    string r="";
+    if?(SNode tch = this.top) {
+      string ret = tch.getitem();
+      this.top = tch.next;
+      r = ret;
+      this.numContents = this.numContents - 1;
+    } else {
+      print_string("Empty Stack! Returned -1\n");
+    }
+    return r;
+  }
+};
+
+
+class StringBuffer <: Object {
+  SStack buffer;
+  
+  new()() 
+    this.buffer = new SStack();
+  {}
 
   unit addString(string s) {
-    ListItem elem = new ListItem(s);
-    this.contentsLength = this.contentsLength + length(s);
-    if (this.head == null) {
-      this.head = elem;
-      this.tail = elem;
-    } else {
-      this.tail.next = elem;
-      elem.prev = this.tail;
-      this.tail = elem;
-    }
+    this.buffer.push(s);  
+  /*if? (Stack stack = this.buffer) {
+      stack.push(s);
+    }*/
     return;
   }
 
-/* Should probably redo this to not run in O(n^2) * /
   string getContents() {
-    ListElem current = this.head;
     string contents = "";
-    /*int[] contents = int[this.contentsLength];
-    int counter = 0; */
-    /*if (this.contentsLength == 0) {
-      return contents;
-    }* /
-    while (current != null) {
-      contents = concat(contents, current.s);
+    while (!(this.buffer.isEmpty())) {
+      contents = concat(this.buffer.pop(), contents);
     }
-    return contents;   
+    return contents;
   }
-
 };
-*/
+
 
 int min(int a, int b) {
-  int max = 0;
-  if (a > b) {
-    max = a;
+  int min = 0;
+  if (a < b) {
+    min = a;
   } else { 
-    max = b;
+    min = b;
   }
-  return max;
+  return min;
 }
 
+/* a shorter way of writing length_of_string */
 int length(string s) {
   return length_of_string(s);
 }
 
+/* Concatenates two string together. */
 string concat(string s1, string s2) {
   int len1 = length(s1);
   int len2 = length(s2);
@@ -96,12 +118,14 @@ string concat(string s1, string s2) {
   return string_of_array(newString);
 }
 
+/* Returns the character at index i.*/
 string charAt(int i, string str) {
   int[] charArray = array_of_string(str);
   int[] c = {charArray[i]};
   return string_of_array(c);
 }
 
+/* Checks if all the characters in both strings are the same. */
 bool equals(string s1, string s2) {
   int[] arr1 = array_of_string(s1);
   int[] arr2 = array_of_string(s2);
@@ -119,6 +143,7 @@ bool equals(string s1, string s2) {
 /* Returns the index of the first occurence of the entire substring within the main string passed in.
    If the substring is not found it returns -1. This function works for any length string, including
    those with length 1 which essentially represent chars. */
+
 int indexOf(string substring, string mainstring) {
   int[] sub = array_of_string(substring);
   int[] main = array_of_string(substring);
@@ -138,8 +163,10 @@ int indexOf(string substring, string mainstring) {
 int indexOf2(string substring, string main, int start) {
   string shortenedMain = substring(main, start);
   return indexOf(substring, shortenedMain);
-}  
+}
 
+/* Returns the substring starting at the start index.
+   An empty string is returned if the index is out of bounds. */
 string substring(string s, int start) {
   int[] str = array_of_string(s);
   int newLen = length(s) - start;
@@ -147,8 +174,8 @@ string substring(string s, int start) {
   if ((newLen > 0) & (start >= 0)) {
     int[] newString = new int[newLen] (fun i -> 0);
     int oldLen = length(s);
-    for (int i = 0; i < newLen; i=i+1;) {
-      newString[i] = str[i + oldLen]; 
+    for (int i = start; i < oldLen; i=i+1;) {
+      newString[i-start] = str[i]; 
     }
     result = string_of_array(newString);
   }
@@ -156,7 +183,8 @@ string substring(string s, int start) {
 }
 
 
-/* Returns the substring begining at the start index and including all chars up to the end index (inclusive) */
+/* Returns the substring begining at the start index and including all chars up to the end index (inclusive)
+      An empty string is returned if the index is out of bounds. */
 string substring2(string s, int start, int end) {
   int len = length(s);
   int[] str = array_of_string(s);
@@ -171,8 +199,28 @@ string substring2(string s, int start, int end) {
   }
   return result;
 }
+
+/* Combines all the strings in the array, with a copy of the dividing string between every two.*/
+string merge(string[] words, string div) {
+  StringBuffer sb = new StringBuffer();
+  int len = length_of_array(words);
+  for (int i = 0; i < len; i=i+1;) {
+    sb.addString(words[i]);
+    sb.addString(div);
+  }
+  return sb.getContents();
+}
+
+string unwords(string[] words) {
+  return merge(words, " ");
+}
+
+string unlines(string[] lines) {
+  return merge(lines, "\n");
+}
   
 
+/* Sets all lowercase letters to uppercase. */
 string toLowerCase(string s) {
   int[] str = array_of_string(s);
   int len = length(s);
@@ -182,11 +230,12 @@ string toLowerCase(string s) {
   return string_of_array(str); 
 }
 
+/* Sets all uppercase letters to lowercase. */
 string toUpperCase(string s) {
   int[] str = array_of_string(s);
   int len = length(s);
   for (int i = 0; i < len; i=i+1;) {
-    if ((str[i] >= 97) & (str[i] <= 112)) str[i] = str[i] - 32;
+    if ((str[i] >= 97) & (str[i] <= 122)) str[i] = str[i] - 32;
   }
   return string_of_array(str);
 }
@@ -212,59 +261,61 @@ string trim(string s) {
 /* Uses dynamic programming to determine the minimum number of insertions, deletions, 
    and substitutions needed to get from one string to the other. */
 int levenshteinDistance(string s1, string s2) {
-  int len1 = length(s1);
-  int len2 = length(s2);
-  int[][] p = new int[][len2] (fun i -> new int[len1](fun j -> 0));
+  int m = length(s1);
+  int n = length(s2);
+  int[][] p = new int[][n+1] (fun i -> new int[m+1](fun i -> 0));
 
-  int[] s = array_of_string(s1);
-  int[] t = array_of_string(s2);
+  int[] s = array_of_string(concat(" ",s1));
+  int[] t = array_of_string(concat(" ",s2));
   
-  for (int i = 0; i < len1; i=i+1;) {
-    p[i][0] = 0;
+  for (int i = 1; i <= n; i=i+1;) {
+    p[i][0] = i;
   }
 
-  for (int i = 0; i < len2; i=i+1;) {
-    p[0][i] = 0;
+  for (int j = 1; j <= m; j=j+1;) {
+    p[0][j] = j;
   } 
   
-  for (int i = 1; i < len2; i=i+1;) {
-    for (int j = 1; j < len1; j=j+1;) {      
-	if (s[i] == t[j]) {
+  for (int i = 1; i <= n; i=i+1;) { 
+    for (int j = 1; j <= m; j=j+1;) { 
+	if (t[i] == s[j]) {
           p[i][j] = p[i-1][j-1];
         } else {
-          p[i][j] = min( p[i][j-1], min(p[i-1][j], p[i-1][j-1])) + 1;
+          p[i][j] = min( p[i][j-1] + 1, min(p[i-1][j] + 1, p[i-1][j-1] + 1));
         }
     }
   }
-  return p[len1 - 1][len2 -1];
-}
-		
-
-bool contains(string sub, string s) {
-  return indexOf(sub, s) != -1;
+  return p[n][m];
 }
 
+
+/* Checks if all the characters in a string are letters. */
 bool isAlpha(string s) {
   int[] str = array_of_string(s);
   int len = length(s);
   bool isAlpha = true;
   for (int i = 0; (i < len) & isAlpha; i=i+1;) {
-    if ( !((str[i] >= 65 & str[i] <= 90) | (str[i] >= 97 & str[i] <= 112)) )   
+    if ( !((str[i] >= 65 & str[i] <= 90) | (str[i] >= 97 & str[i] <= 122)) )   
       isAlpha = false;
   }
   return isAlpha;
 }
   
+/* Checks if all the characters in a string are letters or numbers. */
 bool isAlphaNum(string s) {
   int[] str = array_of_string(s);
   int len = length(s);
   bool isAlphaNum = true;
   for (int i = 0; (i < len) & isAlphaNum; i=i+1;) {
     if ( !((str[i] >= 65 & str[i] <= 90) | 
-           (str[i] >= 97 & str[i] <= 112) |
+           (str[i] >= 97 & str[i] <= 122) |
            (str[i] >= 48 & str[i] <= 57)) ) isAlphaNum = false;
   }
   return isAlphaNum;
+}
+
+bool contains(string sub, string s) {
+  return indexOf(sub, s) != -1;
 }
 
 bool startsWith(string sub, string main) {
@@ -275,21 +326,81 @@ bool endsWith(string sub, string main) {
   return startsWith(substring(main, length(main) - length(sub)), sub);
 }
 
+/* Helper functions for testing. */
+
+unit test(string tester, string result) {
+  print_string(tester);
+  print_string(result);
+  print_string("\n");
+  return;
+}
+
+unit testi(string tester, int result) {
+  print_string(tester);
+  print_string(string_of_int(result));
+  print_string("\n");
+  return;
+}
+
+unit testb(string tester, bool result) {
+  print_string(tester);
+  print_string(string_from_bool(result));
+  print_string("\n");
+  return;
+}
+
+string string_from_bool(bool b) {
+  string result = "";
+  if (b) result = "true";
+  else result = "false";
+  return result;
+}
+
+/*************************************/
+
+
 int program (int argc, string[] argv) {
   string s1 = "cat";
   string s2 = "dog";
-  print_string(concat(s1, s2));
+  string s3 = "hamburger";
+  string s4 = "Parker";
+  test("dog + cat = ", concat(s1,s2));
+  test("substring(\"hamburger\", 5) = ", substring(s3, 5));
+  test("substring2(\"hamburger\", 2, 6) = ", substring2(s3, 2, 6));
+  test("charAt(\"hamburger\", 4) = ", charAt(4, s3));
+  testi("length(\"cat\") = ", length(s1));
+  testb("(cat == cat) = ", equals(s1, s1));
+  testb("(cat == dog) = ", equals(s1, s2));
+  /*testi("indexOf(\"bu\", \"hamburger\") = ", indexOf("bu", s3));
+  testi("indexOf(\"blarg\", \"hamburger\") = ", indexOf("blarg", s3));*/
+
+
+  test("toUpperCase(\"dog\") = ", toUpperCase(s2));
+  test("toUpperCase(\"Parker\") = ", toUpperCase(s4));
+  test("toLowerCase(\"Parker\") = ", toLowerCase(s4));
+  test("toLowerCase(\" 23 Pasds Ew\" = ", toLowerCase(" 23 Pasds Ew"));
+  test("trim(\"    \\n   John   \") = ", concat("\"",concat(trim("    \n   John   "), "\"")));
+  test("trim(\"Bob\") = ", trim("Bob"));
+
+
+  testi("levenshtein distance of sitting and kitten = ", levenshteinDistance("sitting", "kitten"));
+  testi("levenshtein distance of kitten and sitting = ", 
+		levenshteinDistance("kitten", "sitting"));
+  testi("levenshtein distance of ralph and ralph = ", 
+		levenshteinDistance("ralph", "ralph"));
+  testi("levenshtein distance of bcdefg and abcdef = ", 
+		levenshteinDistance("bcdefg", "abcdef"));
+  testi("levenshtein distance of care and late = ", 
+		levenshteinDistance("care", "late"));
+
+  testb("isAlpha(\"bars\") = ", isAlpha("bars"));
+  testb("isAlpha(\"dfsf_sd\") = ", isAlpha("dfsf_sd"));
+  testb("isAlpha(\"computer \") = ", isAlpha("computer "));
+  testb("isAlphaNum(\"larry324xxxnoob\") = ", isAlphaNum("larry324xxxnoob"));
+  testb("isAlphaNum(\"larry324xx_xnoob\") = ", isAlphaNum("larry324xx_xnoob"));
+
   return 0;
 }
-
-/* equals, concatenate, indexOf (String) (String, int), length, toLowerCase, toUpperCase, words, unwords, lines, unlines, split, merge, replace, ocurrences, Levenshtein, fromInt, toInt. getInteger, getToken(), String Buffer, contains, trim, removeWhitespace, valueOf, startsWith, endsWith, isAlpha, isAlphaNum, substring
-
-Still to do:
-words, unwords, lines, unlines, split, merge, replace, ocurrences, fromInt, toInt. getInteger, getToken(), trim, removeWhitespace remove, valueOf
-
-Maybe Regexes
-
-*/
 
 
 #endif
